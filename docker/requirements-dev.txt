@@ -1,0 +1,42 @@
+# =============================================================================
+#  Pinned dependencies - DEV image (all dev-box steps run INSIDE this image)
+# -----------------------------------------------------------------------------
+#  The dev image (.devcontainer/Dockerfile.dev) is the one environment for every
+#  dev-box step; you run them in the devcontainer, not with a loose pip:
+#     - prepare_data.py : download reBEN, stream-filter, pack the calib set
+#     - 01_export_onnx  : rebuild + load the paper-1 encoder, export to ONNX
+#     - 02_quantize     : convert/quantise to OpenVINO IR (incl. INT8 PTQ)
+#  The lean benchmark images (requirements-{avx2,noavx2}.txt) are a DIFFERENT,
+#  minimal environment (OpenVINO only) and share none of this.
+#
+#  torch is the CPU-ONLY build (+cpu from the PyTorch CPU index): this repo does
+#  CPU/OpenVINO inference, and default PyPI torch drags in the multi-GB CUDA
+#  stack we do not need. (On macOS drop "+cpu".) Behind a Nexus proxy the extra
+#  index must be reachable (mirror or allow it).
+#
+#  Fully pinned (==) for reproducibility. Versions match the published eval
+#  harness where they overlap, so the reBEN input distribution is reproduced
+#  identically.
+# =============================================================================
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+# model prep: rebuild/load the encoder, export, convert, quantise
+torch==2.4.1+cpu
+timm==1.0.11
+openvino==2025.3.0
+nncf==2.14.0
+onnx==1.17.0
+
+# data prep: read metadata.parquet, read GeoTIFF bands, stream the .tar.zst
+pandas==2.2.3
+pyarrow==17.0.0
+rasterio==1.4.2
+zstandard==0.23.0
+
+# accuracy axis (05_extract_features + 06_linear_probe): average-precision / mAP.
+# Version matches the published harness so the probe numbers are comparable.
+scikit-learn==1.5.2
+
+# shared
+numpy==1.26.4
+ujson==5.10.0

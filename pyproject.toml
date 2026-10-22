@@ -1,0 +1,65 @@
+# =============================================================================
+#  Project tooling - rs-edge-infer
+# -----------------------------------------------------------------------------
+#  Ruff is the single formatter + linter so every file looks the same.
+#
+#  The lint ruleset encodes the SPIRIT of safety-critical coding standards
+#  (NASA/JPL "Power of Ten", ESA ECSS/BSSC) as far as they map to Python:
+#    - simple, bounded control flow (mccabe complexity, branch/statement caps)
+#    - no dead code, no unused imports/vars (F, RUF)
+#    - explicit error handling, no bare except (E722, B, TRY)
+#    - modern, consistent idioms (UP, SIM, C4, RET, PIE)
+#    - consistent naming and import order (N, I)
+#  Those standards are written for C/C++ flight software; there is no official
+#  ESA/NASA *Python* standard, so this is the closest faithful mapping.
+# =============================================================================
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["output", "input"]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes (unused, undefined)
+    "I",         # isort (import order)
+    "N",         # pep8-naming
+    "UP",        # pyupgrade (modern idioms)
+    "B",         # flake8-bugbear (real bugs)
+    "C4",        # comprehensions
+    "SIM",       # simplify
+    "RET",       # return consistency
+    "PIE",       # misc lints
+    "RUF",       # ruff-specific (incl. unused noqa)
+    "PL",        # pylint subset (complexity, refactors)
+    "TRY",       # error-handling hygiene
+]
+ignore = [
+    "PLR2004",   # "magic value" - too noisy for numeric/scientific code
+    "TRY003",    # long messages in raise - acceptable here
+    "PLR0913",   # many arguments - benchmark fns legitimately take several
+    "TRY300",    # "move to else" - often less readable
+    "PLC0415",   # deferred imports are intentional: heavy/optional deps
+                 # (nncf, onnx, openvino) loaded only where actually needed,
+                 # so the lean benchmark image and host-side metadata do not
+                 # require them.
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12          # bounded, page-sized functions
+
+[tool.ruff.lint.pylint]
+max-args = 8
+max-branches = 18
+max-statements = 70
+
+[tool.ruff.lint.per-file-ignores]
+# The env gate deliberately catches broad exceptions to produce a full report.
+"pipeline/00_test.py" = ["BLE001", "PLW2901"]
+# The sampler uses a module-level flag toggled by a signal handler (standard).
+"host/measure_power.py" = ["PLW0603"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"

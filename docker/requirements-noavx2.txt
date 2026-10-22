@@ -1,0 +1,30 @@
+# =============================================================================
+#  Pinned dependencies - profile: noavx2 (Intel N5105, Jasper Lake, NO AVX2)
+# -----------------------------------------------------------------------------
+#  Pinned to OpenVINO 2024.6.0 - it satisfies two constraints at once:
+#   (1) pre-AVX2 CPU: OpenVINO supports pre-AVX2 CPUs up to the 2025.x series
+#       (from 2026.0 the CPU plugin requires AVX2); 2024.6 is within that range.
+#   (2) Gen11 iGPU: OpenVINO 2025.x regressed the GPU kernel for the ViT
+#       LayerNorm/MVN to OpenCL 2.0 work-group functions that the Jasper Lake
+#       iGPU (OpenCL C 1.2) cannot compile. 2024.6 emits a 1.2-compatible kernel,
+#       so the iGPU works. Bisected by the gpu-probe sweep: 2024.6 PASS, 2025.1
+#       FAIL, with the stock NEO 23.43 unchanged (state/gpu_runtime_probe.json).
+#  The dev box still builds the IR with its own OpenVINO (requirements-dev.txt);
+#  2024.6 reads that IR fine (verified: the probe compiled the dev-built fp32 IR).
+#
+#  IMPORTANT: pip wheels may themselves be compiled with AVX2 and crash with
+#  SIGILL on the N5105. 00_test.py verifies the installed wheel actually runs
+#  on this CPU. If it fails, change the OpenVINO patch or fall back to ONNX
+#  Runtime. Do not treat these pins as verified-on-hardware until 00_test is
+#  green on the real machine.
+#
+#  This LEAN image only runs 00_test + 03_benchmark (OpenVINO IR inference), so
+#  it needs openvino + numpy + ujson and nothing else. nncf/onnx/torch belong to
+#  the dev-box steps (requirements-dev.txt) and are kept OUT here on purpose:
+#  fewer wheels = smaller image and less SIGILL surface on the pre-AVX2 N5105.
+#
+#  Fully pinned (==) for reproducibility. Update deliberately, not by accident.
+# =============================================================================
+openvino==2024.6.0
+numpy==1.26.4
+ujson==5.10.0

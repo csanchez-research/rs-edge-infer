@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "charliermarsh.ruff",
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers"
+  ]
+}

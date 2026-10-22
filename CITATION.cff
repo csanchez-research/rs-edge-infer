@@ -1,0 +1,37 @@
+# -----------------------------------------------------------------------------
+#  CITATION.cff - how to cite this repository.
+#  GitHub reads this file and shows a "Cite this repository" button.
+#  TODO on preprint: add the arXiv ID to preferred-citation (and the DOI once
+#  GRSL accepts) in the `notes`/`doi` fields below.
+# -----------------------------------------------------------------------------
+cff-version: 1.2.0
+title: rs-edge-infer
+message: >-
+  If you use this software, please cite the accompanying paper
+  (see preferred-citation below).
+type: software
+authors:
+  - family-names: Sanchez-Leon
+    given-names: Christian
+    orcid: https://orcid.org/0009-0005-0994-9946
+  - family-names: Chen
+    given-names: Dongming
+license: MIT
+repository-code: https://github.com/csanchez-research/rs-edge-infer
+version: 1.0.0
+date-released: "2026-10-27"
+preferred-citation:
+  type: article
+  title: >-
+    Quantized Edge Inference of a Self-Supervised SAR-Optical Encoder
+    on Commodity x86 Hardware
+  authors:
+    - family-names: Sanchez-Leon
+      given-names: Christian
+      orcid: https://orcid.org/0009-0005-0994-9946
+    - family-names: Chen
+      given-names: Dongming
+  journal: IEEE Geoscience and Remote Sensing Letters
+  year: 2026
+  notes: >-
+    Submitted. Add the arXiv ID on preprint and the DOI on acceptance.

@@ -1,0 +1,42 @@
+# =============================================================================
+#  docker-compose.yml  -  manual step-by-step use (the automated flow is in
+#  host/run_experiment.sh). Handy for debugging a single step.
+#
+#  ONE image that self-detects avx2/noavx2 at build time from the build host's
+#  CPU. Just build where you will run it:
+#     docker compose build        # on the N5105 -> noavx2; on a Lenovo -> avx2
+#  To force a profile (cross-build): FORCE_TARGET=noavx2 docker compose build
+#
+#  Code is BIND-MOUNTED (not only baked in): config.py and pipeline/ are mounted
+#  from the host, so edits you make from outside (VS Code, etc.) are seen inside
+#  the container with no rebuild. input/ and output/ are the data/result volumes.
+#
+#  iGPU: /dev/dri is exposed. If your user is not in the 'render' group, add your
+#  UID or run with suitable permissions.
+# =============================================================================
+services:
+  rsei:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        # Empty = auto-detect. Set avx2/noavx2 only to force (cross-build).
+        FORCE_TARGET: ${FORCE_TARGET:-}
+        # Nexus pip proxy, injected from nexus.env:
+        #   docker compose --env-file nexus.env build
+        # Empty by default -> public PyPI.
+        PIP_INDEX_URL: ${PIP_INDEX_URL:-}
+        PIP_EXTRA_INDEX_URL: ${PIP_EXTRA_INDEX_URL:-}
+        PIP_TRUSTED_HOST: ${PIP_TRUSTED_HOST:-}
+    image: rs-edge-infer
+    devices:
+      - "/dev/dri:/dev/dri"
+    volumes:
+      - ./config.py:/work/config.py:ro        # live code (edit from outside)
+      - ./pipeline:/work/pipeline:ro          # live code (edit from outside)
+      - ./input:/work/input:ro                # data in
+      - ./output:/work/output                 # results out
+      - ./logs:/work/logs                     # logs out
+    # default command: the gate. Override on the CLI:
+    #   docker compose run --rm rsei benchmark --model ... --precision fp32
+    command: ["test"]

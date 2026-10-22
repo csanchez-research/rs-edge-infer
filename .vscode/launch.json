@@ -1,0 +1,50 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "01 export onnx",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/pipeline/01_export_onnx.py",
+      "console": "integratedTerminal",
+      "args": ["--checkpoint", "${workspaceFolder}/input/encoder.pt"],
+      "env": { "RSEI_OUTPUT_DIR": "${workspaceFolder}/output" }
+    },
+    {
+      "name": "02 quantize",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/pipeline/02_quantize.py",
+      "console": "integratedTerminal",
+      "env": { "RSEI_OUTPUT_DIR": "${workspaceFolder}/output" }
+    },
+    {
+      "name": "03 benchmark (CPU, fp32)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/pipeline/03_infer_benchmark.py",
+      "console": "integratedTerminal",
+      "args": [
+        "--precision", "fp32",
+        "--devices", "CPU"
+      ],
+      "env": { "RSEI_OUTPUT_DIR": "${workspaceFolder}/output" }
+    },
+    {
+      "name": "00 test (env gate)",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/pipeline/00_test.py",
+      "console": "integratedTerminal",
+      "env": { "RSEI_OUTPUT_DIR": "${workspaceFolder}/output" }
+    },
+    {
+      "name": "04 merge stats",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/host/04_merge_stats.py",
+      "console": "integratedTerminal",
+      "args": ["--run", "CHANGE_ME_run_id", "--outdir", "${workspaceFolder}/output"]
+    }
+  ]
+}

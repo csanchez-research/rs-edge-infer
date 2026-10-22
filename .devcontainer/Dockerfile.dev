@@ -1,0 +1,44 @@
+# =============================================================================
+#  Dockerfile.dev  -  development container for VS Code (Dev Containers)
+# -----------------------------------------------------------------------------
+#  A roomy dev image (unlike the lean benchmark images): it has torch + timm so
+#  you can run export/quantize and smoke-test the pipeline, plus ruff for
+#  format/lint on save. The repo is bind-mounted at /workspace by devcontainer,
+#  so your edits are live - this image is just the toolchain, not the code.
+#
+#  This is a DEV box image (your Windows PC via Docker Desktop, or any Linux):
+#  it is NOT the N5105 benchmark image and makes no claim about AVX2.
+# =============================================================================
+FROM python:3.11-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# pip network tolerance as CONFIG (applies to every pip call in the build).
+ENV PIP_DEFAULT_TIMEOUT=1000
+ENV PIP_RETRIES=20
+
+# pip source config. PIP_INDEX_URL = primary (your Nexus); PIP_EXTRA_INDEX_URL =
+# fallback(s). All empty -> public PyPI. Set them (nexus.env) for Nexus-first.
+ARG PIP_INDEX_URL=
+ARG PIP_EXTRA_INDEX_URL=
+ARG PIP_TRUSTED_HOST=
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git ca-certificates aria2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# All dev-box dependencies (model prep: torch/timm/openvino/nncf/onnx; data prep:
+# pandas/pyarrow/rasterio/zstandard) and ruff, so prepare_data.py, 01_export and
+# 02_quantize all run INSIDE this container - no loose pip on the host.
+# Resilient to slow/flaky networks: timeout/retries from the ENV above, and a
+# BuildKit pip CACHE MOUNT so a retried build reuses already-downloaded wheels.
+COPY docker/requirements-dev.txt /tmp/requirements-dev.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install \
+        ${PIP_INDEX_URL:+--index-url "$PIP_INDEX_URL"} \
+        ${PIP_EXTRA_INDEX_URL:+--extra-index-url "$PIP_EXTRA_INDEX_URL"} \
+        ${PIP_TRUSTED_HOST:+--trusted-host "$PIP_TRUSTED_HOST"} \
+        -r /tmp/requirements-dev.txt ruff
+
+WORKDIR /workspace

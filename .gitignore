@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Experiment folders - entirely out of git (folder + contents).
+# Scripts recreate them with mkdir/makedirs, so a clean clone just works.
+output/
+input/
+logs/
+# Provenance manifests: local source of truth of the data, kept across the whole
+# project, but treated as data (not versioned) - same rationale as input/output.
+state/
+
+# Model weights / data (large; shared via Zenodo, not git)
+*.pt
+*.pth
+*.onnx
+*.xml
+*.bin
+
+# Nexus proxy config - keeps the internal IP out of the repo (template is kept)
+nexus.env
+.env
+
+# Editor / OS
+.DS_Store
+.idea/
+*.swp
+.ruff_cache/

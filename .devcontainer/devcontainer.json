@@ -1,0 +1,42 @@
+{
+  "name": "rs-edge-infer (dev)",
+  "build": {
+    "dockerfile": "Dockerfile.dev",
+    "context": "..",
+    "args": {
+      "PIP_INDEX_URL": "${localEnv:PIP_INDEX_URL}",
+      "PIP_EXTRA_INDEX_URL": "${localEnv:PIP_EXTRA_INDEX_URL}",
+      "PIP_TRUSTED_HOST": "${localEnv:PIP_TRUSTED_HOST}"
+    }
+  },
+  // The whole repo is mounted as the workspace, so all code is editable from
+  // outside and live inside the container (no rebuild to test a change).
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "runArgs": [
+    // Expose the Intel iGPU to the container (Linux hosts only; ignored/benign
+    // where /dev/dri does not exist, e.g. Windows - remove if it errors there).
+    "--device=/dev/dri"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,43 @@
+# =============================================================================
+#  Dockerfile.gpu-probe  -  one image per candidate GPU OpenCL runtime
+# -----------------------------------------------------------------------------
+#  Used by tools/gpu_runtime_probe.sh to test which Intel GPU OpenCL runtime
+#  (NEO / intel-opencl-icd) can actually COMPILE the model on the iGPU. The NEO
+#  install step is injected as a build arg (NEO_INSTALL) so one Dockerfile covers
+#  every candidate: stock Ubuntu, an Ubuntu PPA, a pinned apt version, or Intel's
+#  own release .debs. OpenVINO itself is held fixed (OPENVINO_VER) so the only
+#  variable under test is the OpenCL runtime.
+# =============================================================================
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PIP_DEFAULT_TIMEOUT=1000
+ENV PIP_RETRIES=20
+
+ARG OPENVINO_VER=2025.3.0
+ARG PIP_INDEX_URL=
+ARG PIP_EXTRA_INDEX_URL=
+ARG PIP_TRUSTED_HOST=
+
+# Base: python, the generic OpenCL loader, clinfo, and the tooling a recipe may
+# need (add-apt-repository for a PPA, curl/gnupg for Intel release .debs).
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        python3 python3-pip ca-certificates \
+        ocl-icd-libopencl1 clinfo \
+        curl gnupg software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# The candidate NEO runtime install, injected by the sweep script. The default is
+# the stock Ubuntu package (the known-broken baseline); the script overrides it.
+ARG NEO_INSTALL="apt-get update && apt-get install -y --no-install-recommends intel-opencl-icd && rm -rf /var/lib/apt/lists/*"
+RUN bash -c "set -eux; ${NEO_INSTALL}"
+
+RUN pip3 install --break-system-packages \
+        ${PIP_INDEX_URL:+--index-url "$PIP_INDEX_URL"} \
+        ${PIP_EXTRA_INDEX_URL:+--extra-index-url "$PIP_EXTRA_INDEX_URL"} \
+        ${PIP_TRUSTED_HOST:+--trusted-host "$PIP_TRUSTED_HOST"} \
+        "openvino==${OPENVINO_VER}"
+
+COPY tools/probe_gpu_compile.py /probe_gpu_compile.py
+ENTRYPOINT ["python3", "/probe_gpu_compile.py"]

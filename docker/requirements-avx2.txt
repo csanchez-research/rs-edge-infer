@@ -1,0 +1,25 @@
+# =============================================================================
+#  Pinned dependencies - profile: avx2 (Lenovo M720q/M920q, Coffee Lake, AVX2)
+# -----------------------------------------------------------------------------
+#  Coffee Lake has AVX2 but NOT VNNI/DL-Boost, so the INT8 speedup here comes
+#  from AVX2, not from VNNI. That contrast is part of what the paper measures,
+#  not a defect.
+#
+#  Same OpenVINO version as the noavx2 profile (2024.6.0) on purpose: keeping the
+#  toolkit identical across machines isolates the hardware as the variable. 2024.6
+#  is the version that compiles the iGPU kernel on the N5105's Gen11 (2025.x
+#  regressed it; see the noavx2 notes). The Lenovo's Gen9.5 iGPU may well compile
+#  2025.x too, but a single version keeps the cross-machine comparison clean.
+#  VALIDATE on the Lenovo with `deploy test` (CPU no-SIGILL + iGPU) before trusting
+#  these numbers. If you later want each machine at its best, bump this and
+#  document the OpenVINO version per machine in the results.
+#
+#  LEAN image: only 00_test + 03_benchmark run here (OpenVINO IR inference), so
+#  it needs openvino + numpy + ujson and nothing else. nncf/onnx/torch belong to
+#  the dev-box steps (requirements-dev.txt) and are intentionally kept OUT.
+#
+#  Fully pinned (==) for reproducibility.
+# =============================================================================
+openvino==2024.6.0
+numpy==1.26.4
+ujson==5.10.0
