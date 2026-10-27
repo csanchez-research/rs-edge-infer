@@ -1,5 +1,7 @@
 # rs-edge-infer
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23689868.svg)](https://doi.org/10.5281/zenodo.23689868)
+
 Proof-of-concept harness for deploying a self-supervised remote-sensing encoder
 on low-cost commodity x86 hardware, characterising the **latency / accuracy /
 energy** trade-off across quantisation levels (FP32 / FP16 / INT8) and OpenVINO
@@ -451,8 +453,11 @@ If you use this code, please cite the accompanying paper:
 }
 ```
 
-A `CITATION.cff` is included, so GitHub shows a "Cite this repository" button.
+To cite the software itself (all versions):
+C. Sanchez-Leon and D. Chen, *rs-edge-infer*, Zenodo, 2026,
+https://doi.org/10.5281/zenodo.23689868.
 
+A `CITATION.cff` is included, so GitHub shows a "Cite this repository" button.
 ---
 
 ## License

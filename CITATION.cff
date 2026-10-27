@@ -18,6 +18,7 @@ authors:
     given-names: Dongming
 license: MIT
 repository-code: https://github.com/csanchez-research/rs-edge-infer
+doi: 10.5281/zenodo.23689868
 version: 1.0.0
 date-released: "2026-10-27"
 preferred-citation:
