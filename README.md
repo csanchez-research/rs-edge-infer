@@ -29,6 +29,23 @@ Learning," arXiv:2610.17680, 2026 (https://doi.org/10.48550/arXiv.2610.17680).
 
 ---
 
+## What is not included
+
+This repository contains code only. It does **not** contain:
+
+- **The pretrained encoder** (`encoder.pt`) and its `norm_stats.json`. They are
+  released with Paper 1; drop them into `input/`.
+- **reBEN data.** `pipeline/prepare_data.py` downloads reBEN (Clasen et al.,
+  IGARSS 2025; CDLA-Permissive-1.0) and carves the seeded subset
+  (calibration 512 / train 20k / test 10k).
+- **The IRs, the INT8 calibration pack and the benchmark sample.** They are
+  rebuilt by `prepare_data.py`, `01_export_onnx.py` and `02_quantize.py`, and
+  `00_verify.py` checks them against the SHA-256 provenance manifest.
+- **Measurement results** (`output/`), which are produced on each node by
+  `deploy.sh` / `host/run_experiment.sh`.
+
+---
+
 ## 1. Hardware under study
 
 | Role | Machine | CPU | AVX2 | VNNI | Role in the paper |
